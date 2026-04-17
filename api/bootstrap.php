@@ -50,7 +50,18 @@ function readCollection(string $filename): array
 
 function writeCollection(string $filename, array $items): void
 {
-    file_put_contents(storagePath($filename), json_encode(array_values($items), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+    $path = storagePath($filename);
+    $dir  = dirname($path);
+
+    if (!is_writable($dir)) {
+        @chmod($dir, 0775);
+    }
+
+    $result = file_put_contents($path, json_encode(array_values($items), JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES), LOCK_EX);
+
+    if ($result === false) {
+        jsonResponse(['message' => 'Storage write failed — check folder permissions on server.'], 500);
+    }
 }
 
 function generateOrderId(): string
