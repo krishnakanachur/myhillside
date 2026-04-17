@@ -145,19 +145,18 @@
         <input name="name" type="text" placeholder="Full name" required>
         <input name="phone" type="tel" placeholder="Phone number" required>
         <input name="email" type="email" placeholder="Email address" required>
-        <textarea name="address" placeholder="Delivery address" rows="4" required></textarea>
+        <textarea name="address" placeholder="Delivery address" rows="3" required></textarea>
         <div class="field-row">
           <input name="city" type="text" placeholder="City" required>
           <input name="pincode" type="text" placeholder="PIN code" required>
         </div>
         <div class="payment-options">
-          <label><input type="radio" name="paymentMethod" value="upi" checked> UPI</label>
-          <label><input type="radio" name="paymentMethod" value="card"> Debit/Credit Card</label>
-          <label><input type="radio" name="paymentMethod" value="netbanking"> Net Banking</label>
-          <label><input type="radio" name="paymentMethod" value="cod"> Cash on Delivery</label>
+          <label><input type="radio" name="paymentMethod" value="upi" checked>UPI</label>
+          <label><input type="radio" name="paymentMethod" value="card">Card</label>
+          <label><input type="radio" name="paymentMethod" value="netbanking">Net Banking</label>
+          <label><input type="radio" name="paymentMethod" value="cod">COD</label>
         </div>
         <button class="button button-primary button-block" type="submit">Pay Securely</button>
-        <p class="form-note">Razorpay-style checkout is ready to activate once you add your live key in <code>assets/js/site-config.js</code>.</p>
       </form>
       <div class="checkout-success" data-checkout-success hidden>
         <h3>Order placed successfully.</h3>
