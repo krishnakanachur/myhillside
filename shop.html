@@ -138,26 +138,48 @@
   <div class="checkout-modal" data-checkout-modal aria-hidden="true">
     <div class="checkout-backdrop" data-close-checkout></div>
     <section class="checkout-panel">
-      <button class="cart-close" type="button" data-close-checkout aria-label="Close checkout">+</button>
-      <span class="eyebrow">Secure checkout</span>
-      <h2>Complete your order</h2>
+
+      <div class="checkout-header">
+        <div>
+          <span class="eyebrow">Secure checkout</span>
+          <h2 class="checkout-title">Complete your order</h2>
+        </div>
+        <button class="cart-close checkout-close-btn" type="button" data-close-checkout aria-label="Close checkout">+</button>
+      </div>
+
       <form class="checkout-form" data-checkout-form>
-        <input name="name" type="text" placeholder="Full name" required>
-        <input name="phone" type="tel" placeholder="Phone number" required>
-        <input name="email" type="email" placeholder="Email address" required>
-        <textarea name="address" placeholder="Delivery address" rows="3" required></textarea>
-        <div class="field-row">
-          <input name="city" type="text" placeholder="City" required>
-          <input name="pincode" type="text" placeholder="PIN code" required>
+
+        <div class="checkout-section">
+          <p class="checkout-section-label">Contact</p>
+          <input name="name" type="text" placeholder="Full name" required>
+          <div class="field-row">
+            <input name="phone" type="tel" placeholder="Phone" required>
+            <input name="email" type="email" placeholder="Email" required>
+          </div>
         </div>
-        <div class="payment-options">
-          <label><input type="radio" name="paymentMethod" value="upi" checked>UPI</label>
-          <label><input type="radio" name="paymentMethod" value="card">Card</label>
-          <label><input type="radio" name="paymentMethod" value="netbanking">Net Banking</label>
-          <label><input type="radio" name="paymentMethod" value="cod">COD</label>
+
+        <div class="checkout-section">
+          <p class="checkout-section-label">Delivery address</p>
+          <textarea name="address" placeholder="Street address, landmark" rows="2" required></textarea>
+          <div class="field-row">
+            <input name="city" type="text" placeholder="City" required>
+            <input name="pincode" type="text" placeholder="PIN code" required>
+          </div>
         </div>
+
+        <div class="checkout-section">
+          <p class="checkout-section-label">Payment method</p>
+          <div class="payment-options">
+            <label><input type="radio" name="paymentMethod" value="upi" checked>UPI</label>
+            <label><input type="radio" name="paymentMethod" value="card">Card</label>
+            <label><input type="radio" name="paymentMethod" value="netbanking">Net Banking</label>
+            <label><input type="radio" name="paymentMethod" value="cod">COD</label>
+          </div>
+        </div>
+
         <button class="button button-primary button-block" type="submit">Pay Securely</button>
       </form>
+
       <div class="checkout-success" data-checkout-success hidden>
         <h3>Order placed successfully.</h3>
         <p data-checkout-message></p>
