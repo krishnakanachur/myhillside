@@ -2,6 +2,7 @@ const config = window.MH_CONFIG || {};
 const products = window.MH_PRODUCTS || [];
 const cartKey = "mh_cart";
 const ordersKey = "mh_orders";
+const backendBase = config.backendBase || "";
 
 const currency = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -191,6 +192,31 @@ const maybeLoadRazorpay = () => {
   document.head.appendChild(script);
 };
 
+const apiFetch = async (path, options = {}) => {
+  const response = await fetch(`${backendBase}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(options.headers || {})
+    },
+    ...options
+  });
+
+  const text = await response.text();
+  let data = {};
+
+  try {
+    data = text ? JSON.parse(text) : {};
+  } catch {
+    data = { message: text || "Unexpected response from server." };
+  }
+
+  if (!response.ok) {
+    throw new Error(data.message || "Request failed.");
+  }
+
+  return data;
+};
+
 const submitCheckout = async (event) => {
   event.preventDefault();
   const form = event.currentTarget;
@@ -208,9 +234,7 @@ const submitCheckout = async (event) => {
   const shipping = subtotal >= (config.freeShippingThreshold || 1200) ? 0 : (config.shippingFee || 80);
   const total = subtotal + shipping;
 
-  const orderId = `MHS${Date.now().toString().slice(-8)}`;
   const order = {
-    id: orderId,
     customer: Object.fromEntries(formData.entries()),
     items: cart,
     total,
@@ -228,15 +252,29 @@ const submitCheckout = async (event) => {
       currency: config.currency || "INR",
       name: config.merchantName || "My Hillside",
       description: "Premium Malenadu coffee order",
-      handler: () => {
-        const orders = getOrders();
-        orders.unshift(order);
-        saveOrders(orders);
-        saveCart([]);
-        renderCart();
-        form.hidden = true;
-        successPanel.hidden = false;
-        messageNode.textContent = `Your order ${orderId} has been placed successfully for ${currency.format(total)}.`;
+      handler: async (paymentResponse) => {
+        try {
+          const created = await apiFetch("/orders.php", {
+            method: "POST",
+            body: JSON.stringify({
+              ...order,
+              paymentMethod,
+              paymentStatus: "paid",
+              razorpay: paymentResponse
+            })
+          });
+
+          const orders = getOrders();
+          orders.unshift(created.order);
+          saveOrders(orders);
+          saveCart([]);
+          renderCart();
+          form.hidden = true;
+          successPanel.hidden = false;
+          messageNode.textContent = `Your order ${created.order.id} has been placed successfully for ${currency.format(total)}.`;
+        } catch (error) {
+          alert(error.message || "Payment succeeded, but saving the order failed. Please contact support.");
+        }
       },
       prefill: {
         name: formData.get("name"),
@@ -252,15 +290,28 @@ const submitCheckout = async (event) => {
     return;
   }
 
-  const orders = getOrders();
-  orders.unshift(order);
-  saveOrders(orders);
-  saveCart([]);
-  renderCart();
+  try {
+    const created = await apiFetch("/orders.php", {
+      method: "POST",
+      body: JSON.stringify({
+        ...order,
+        paymentMethod,
+        paymentStatus: paymentMethod === "cod" ? "pending" : "initiated"
+      })
+    });
 
-  form.hidden = true;
-  successPanel.hidden = false;
-  messageNode.textContent = `Your order ${orderId} has been placed successfully for ${currency.format(total)} via ${String(paymentMethod).toUpperCase()}.`;
+    const orders = getOrders();
+    orders.unshift(created.order);
+    saveOrders(orders);
+    saveCart([]);
+    renderCart();
+
+    form.hidden = true;
+    successPanel.hidden = false;
+    messageNode.textContent = `Your order ${created.order.id} has been placed successfully for ${currency.format(total)} via ${String(paymentMethod).toUpperCase()}.`;
+  } catch (error) {
+    alert(error.message || "We could not place your order right now. Please try again.");
+  }
 };
 
 const bindCheckout = () => {
@@ -295,15 +346,22 @@ const handleFormSubmission = async (form) => {
   entries.unshift({ ...payload, createdAt: new Date().toISOString() });
   localStorage.setItem(storageKey, JSON.stringify(entries));
 
-  if (config.formsEndpoint) {
-    try {
-      await fetch(config.formsEndpoint, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ formType, payload })
-      });
-    } catch {
-      // Falls back to local persistence so the front end remains functional.
+  try {
+    await apiFetch("/forms.php", {
+      method: "POST",
+      body: JSON.stringify({ formType, payload })
+    });
+  } catch {
+    if (config.formsEndpoint) {
+      try {
+        await fetch(config.formsEndpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ formType, payload })
+        });
+      } catch {
+        // Falls back to local persistence so the front end remains functional.
+      }
     }
   }
 
@@ -326,15 +384,22 @@ const bindTracking = () => {
 
   if (!form || !result) return;
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     const orderId = new FormData(form).get("orderId");
-    const order = getOrders().find((entry) => entry.id === orderId);
+    result.textContent = "Checking order status...";
 
-    if (order) {
-      result.textContent = `${order.id}: ${order.status}. Last updated for ${order.customer.name}.`;
-    } else {
-      result.textContent = "We could not find that order locally yet. Once you connect a live backend, this will sync with your real shipping updates.";
+    try {
+      const data = await apiFetch(`/orders.php?track=${encodeURIComponent(orderId)}`);
+      result.textContent = `${data.order.id}: ${data.order.status}. Last updated for ${data.order.customer.name}.`;
+    } catch {
+      const order = getOrders().find((entry) => entry.id === orderId);
+
+      if (order) {
+        result.textContent = `${order.id}: ${order.status}. Last updated for ${order.customer.name}.`;
+      } else {
+        result.textContent = "We could not find that order. Please check the order ID or contact support.";
+      }
     }
   });
 };
