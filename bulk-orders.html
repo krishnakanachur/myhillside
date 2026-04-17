@@ -75,7 +75,12 @@
             <input name="email" type="email" placeholder="Email address" required>
             <input name="phone" type="tel" placeholder="Phone number" required>
             <input name="quantity" type="number" min="50" placeholder="Required quantity in kg" required>
-            <label class="checkbox-label"><input name="recurring" type="checkbox"> I need monthly recurring supply</label>
+            <select name="recurring" required>
+              <option value="" disabled selected>Supply frequency</option>
+              <option value="one-time">One-time order</option>
+              <option value="monthly">Monthly recurring supply</option>
+              <option value="quarterly">Quarterly recurring supply</option>
+            </select>
             <textarea name="message" rows="5" placeholder="Tell us about your outlet, expected volume, and custom requirements." required></textarea>
             <button class="button button-primary" type="submit">Send wholesale inquiry</button>
           </form>

@@ -687,7 +687,8 @@ p {
 
 .newsletter-form input,
 .form-card input,
-.form-card textarea {
+.form-card textarea,
+.form-card select {
   width: 100%;
   min-height: 54px;
   padding: 14px 16px;
@@ -695,6 +696,20 @@ p {
   border-radius: 16px;
   background: rgba(255, 252, 245, 0.95);
   color: var(--ink);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.form-card select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%236b5a4e' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 16px center;
+  padding-right: 44px;
+  cursor: pointer;
+}
+
+.form-card select option[value=""] {
+  color: var(--muted);
 }
 
 .checkout-form input,
