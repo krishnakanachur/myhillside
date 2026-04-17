@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop | My Hillside</title>
+  <meta name="description" content="Shop premium Malenadu filter coffee blends, sachets, and gifting packs from My Hillside.">
+  <meta property="og:title" content="Shop | My Hillside">
+  <meta property="og:description" content="Premium coffee powder shipped across India.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://myhillside.in/shop.html">
+  <link rel="canonical" href="https://myhillside.in/shop.html">
+  <link rel="icon" href="assets/images/favicon-mark.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/site-config.js" defer></script>
+  <script src="assets/js/products.js" defer></script>
+  <script src="assets/js/app.js" defer></script>
+</head>
+<body data-page="shop">
+  <div class="announcement-bar">Shipping across India | Premium South Indian filter coffee from Malenadu</div>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand-mark" href="index.html" aria-label="My Hillside home">
+        <img src="assets/images/favicon-mark.png" alt="My Hillside emblem" width="54" height="54">
+      </a>
+      <button class="mobile-nav-toggle" type="button" aria-expanded="false" aria-label="Toggle menu">
+        <span></span>
+        <span></span>
+      </button>
+      <nav class="site-nav" data-nav>
+        <a href="index.html">Home</a>
+        <a class="is-active" href="shop.html">Shop</a>
+        <a href="about.html">About</a>
+        <a href="contact.html">Contact</a>
+        <a href="bulk-orders.html">Bulk Orders</a>
+      </nav>
+      <div class="header-actions">
+        <a class="header-link" href="contact.html#newsletter">Newsletter</a>
+        <button class="cart-button" type="button" data-open-cart>
+          Cart
+          <span class="cart-count" data-cart-count>0</span>
+        </button>
+        <img class="header-wordmark" src="assets/images/brand-typography.png" alt="My Hillside">
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="page-hero page-hero-shop">
+      <div class="container page-hero-grid">
+        <div class="reveal">
+          <span class="eyebrow">Curated collection</span>
+          <h1>Blends built for the modern Indian coffee ritual.</h1>
+          <p>Choose from home staples, everyday sachets, and larger-format packs designed for uncompromising filter coffee lovers.</p>
+        </div>
+        <div class="page-hero-stats reveal">
+          <div><strong>₹120 - ₹925</strong><span>Premium pricing</span></div>
+          <div><strong>India only</strong><span>Shipping available nationwide</span></div>
+          <div><strong>UPI + COD</strong><span>Flexible payment modes</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-space">
+      <div class="container">
+        <div class="filter-bar reveal">
+          <button class="filter-button is-active" type="button" data-filter="all">All</button>
+          <button class="filter-button" type="button" data-filter="signature">Signature Blend</button>
+          <button class="filter-button" type="button" data-filter="daily">Daily Use</button>
+          <button class="filter-button" type="button" data-filter="gifting">Lifestyle Packs</button>
+        </div>
+        <div class="product-grid" data-product-grid="shop"></div>
+      </div>
+    </section>
+
+    <section class="section-space">
+      <div class="container two-column-panel reveal">
+        <div>
+          <span class="eyebrow">Payment system</span>
+          <h2>Indian checkout, premium finish.</h2>
+          <p>Use UPI, debit or credit cards, net banking, or cash on delivery. The site includes a Razorpay-ready flow so you can connect live payment collection when your merchant account is ready.</p>
+        </div>
+        <div class="list-card">
+          <p>Accepted methods: UPI, Debit/Credit Cards, Net Banking, COD</p>
+          <p>Shipping message shown across the journey: Shipping across India</p>
+          <p>Currency display: Indian Rupee (₹)</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-grid">
+      <div>
+        <img class="footer-wordmark" src="assets/images/brand-typography.png" alt="My Hillside">
+        <p>Premium coffee powders from the Western Ghats of Karnataka.</p>
+      </div>
+      <div>
+        <h3>Explore</h3>
+        <a href="shop.html">Shop</a>
+        <a href="about.html">About</a>
+        <a href="bulk-orders.html">Bulk Orders</a>
+      </div>
+      <div>
+        <h3>Support</h3>
+        <a href="contact.html">Contact</a>
+        <a href="contact.html#tracking">Track Order</a>
+        <a href="mailto:info@myhillside.in">info@myhillside.in</a>
+      </div>
+      <div>
+        <h3>Commerce</h3>
+        <p>UPI, Cards, Net Banking, COD</p>
+        <p>Shipping across India</p>
+      </div>
+    </div>
+  </footer>
+
+  <div class="cart-drawer" data-cart-drawer aria-hidden="true">
+    <div class="cart-backdrop" data-close-cart></div>
+    <aside class="cart-panel">
+      <button class="cart-close" type="button" data-close-cart aria-label="Close cart">+</button>
+      <div class="cart-panel-header">
+        <span class="eyebrow">Your selections</span>
+        <h2>Shopping cart</h2>
+      </div>
+      <div class="cart-items" data-cart-items></div>
+      <div class="cart-summary">
+        <div><span>Subtotal</span><strong data-cart-subtotal>₹0</strong></div>
+        <div><span>Shipping</span><strong data-cart-shipping>Calculated at checkout</strong></div>
+        <div><span>Total</span><strong data-cart-total>₹0</strong></div>
+      </div>
+      <button class="button button-primary button-block" type="button" data-open-checkout>Proceed to Checkout</button>
+    </aside>
+  </div>
+
+  <div class="checkout-modal" data-checkout-modal aria-hidden="true">
+    <div class="checkout-backdrop" data-close-checkout></div>
+    <section class="checkout-panel">
+      <button class="cart-close" type="button" data-close-checkout aria-label="Close checkout">+</button>
+      <span class="eyebrow">Secure checkout</span>
+      <h2>Complete your order</h2>
+      <form class="checkout-form" data-checkout-form>
+        <input name="name" type="text" placeholder="Full name" required>
+        <input name="phone" type="tel" placeholder="Phone number" required>
+        <input name="email" type="email" placeholder="Email address" required>
+        <textarea name="address" placeholder="Delivery address" rows="4" required></textarea>
+        <div class="field-row">
+          <input name="city" type="text" placeholder="City" required>
+          <input name="pincode" type="text" placeholder="PIN code" required>
+        </div>
+        <div class="payment-options">
+          <label><input type="radio" name="paymentMethod" value="upi" checked> UPI</label>
+          <label><input type="radio" name="paymentMethod" value="card"> Debit/Credit Card</label>
+          <label><input type="radio" name="paymentMethod" value="netbanking"> Net Banking</label>
+          <label><input type="radio" name="paymentMethod" value="cod"> Cash on Delivery</label>
+        </div>
+        <button class="button button-primary button-block" type="submit">Pay Securely</button>
+        <p class="form-note">Razorpay-style checkout is ready to activate once you add your live key in <code>assets/js/site-config.js</code>.</p>
+      </form>
+      <div class="checkout-success" data-checkout-success hidden>
+        <h3>Order placed successfully.</h3>
+        <p data-checkout-message></p>
+        <a class="button button-secondary" href="contact.html#tracking">Track your order</a>
+      </div>
+    </section>
+  </div>
+
+  <a class="whatsapp-fab is-hidden" data-whatsapp-link href="#" target="_blank" rel="noopener">WhatsApp</a>
+</body>
+</html>
