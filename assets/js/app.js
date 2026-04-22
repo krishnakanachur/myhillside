@@ -3,6 +3,7 @@ const products = window.MH_PRODUCTS || [];
 const cartKey = "mh_cart";
 const ordersKey = "mh_orders";
 const backendBase = config.backendBase || "";
+const siteGateKey = "mh_site_gate_access";
 
 const currency = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -29,6 +30,7 @@ const getOrders = () => {
 };
 
 const saveOrders = (orders) => localStorage.setItem(ordersKey, JSON.stringify(orders));
+const hasSiteAccess = () => Boolean(localStorage.getItem(siteGateKey));
 
 const findProduct = (id) => products.find((product) => product.id === id);
 
@@ -102,6 +104,11 @@ const renderCart = () => {
 };
 
 const addToCart = (id) => {
+  if (!hasSiteAccess()) {
+    initSiteGate(() => addToCart(id));
+    return;
+  }
+
   const product = findProduct(id);
   if (!product) return;
 
@@ -440,6 +447,47 @@ const initReveal = () => {
   }, { threshold: 0.2 });
 
   document.querySelectorAll(".reveal").forEach((node) => observer.observe(node));
+};
+
+const initSiteGate = (onComplete) => {
+  if (hasSiteAccess()) {
+    if (typeof onComplete === "function") onComplete();
+    return;
+  }
+
+  if (document.querySelector(".site-gate")) return;
+
+  const gate = document.createElement("div");
+  gate.className = "site-gate";
+  gate.innerHTML = `
+    <div class="site-gate-backdrop"></div>
+    <section class="site-gate-card" role="dialog" aria-modal="true" aria-labelledby="site-gate-title">
+      <span class="eyebrow">Welcome</span>
+      <h2 id="site-gate-title">Login to continue</h2>
+      <p>Enter your details to continue browsing My Hillside.</p>
+      <form class="site-gate-form" data-site-gate-form>
+        <input type="text" name="name" placeholder="Your name" required>
+        <input type="email" name="email" placeholder="Email address" required>
+        <button class="button button-primary button-block" type="submit">Continue to website</button>
+      </form>
+      <p class="site-gate-note">This only unlocks website access on this device and does not affect the admin login.</p>
+    </section>
+  `;
+
+  document.body.appendChild(gate);
+  document.body.style.overflow = "hidden";
+
+  gate.querySelector("[data-site-gate-form]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const payload = Object.fromEntries(new FormData(event.currentTarget).entries());
+    localStorage.setItem(siteGateKey, JSON.stringify({
+      ...payload,
+      unlockedAt: new Date().toISOString()
+    }));
+    gate.remove();
+    document.body.style.overflow = "";
+    if (typeof onComplete === "function") onComplete();
+  });
 };
 
 document.addEventListener("DOMContentLoaded", () => {
