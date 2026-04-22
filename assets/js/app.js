@@ -157,6 +157,7 @@ const resetCheckoutState = () => {
 
 const openCart = () => setOpenState(cartDrawer(), true);
 const closeCart = () => setOpenState(cartDrawer(), false);
+
 const openCheckout = () => {
   if (!getCart().length) {
     alert("Add a product to your cart before checkout.");
@@ -470,13 +471,13 @@ const initSiteGate = (onComplete) => {
     <section class="site-gate-card" role="dialog" aria-modal="true" aria-labelledby="site-gate-title">
       <span class="eyebrow">Welcome</span>
       <h2 id="site-gate-title">Login to continue</h2>
-      <p>Enter your details to continue browsing My Hillside.</p>
+      <p>Enter your details to continue before shopping.</p>
       <form class="site-gate-form" data-site-gate-form>
         <input type="text" name="name" placeholder="Your name" required>
         <input type="email" name="email" placeholder="Email address" required>
-        <button class="button button-primary button-block" type="submit">Continue to website</button>
+        <button class="button button-primary button-block" type="submit">Continue</button>
       </form>
-      <p class="site-gate-note">This only unlocks website access on this device and does not affect the admin login.</p>
+      <p class="site-gate-note">This only unlocks shopping on this device and does not affect the admin login.</p>
     </section>
   `;
 
