@@ -1089,6 +1089,52 @@ p {
   font-size: 0.86rem;
 }
 
+.auth-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 130;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+}
+
+.auth-modal-card {
+  position: relative;
+  width: min(560px, 100%);
+  padding: 32px;
+  border-radius: 28px;
+  background: rgba(255, 252, 245, 0.98);
+  border: 1px solid rgba(32, 23, 17, 0.08);
+  box-shadow: 0 24px 60px rgba(31, 23, 17, 0.24);
+}
+
+.auth-tabs {
+  display: flex;
+  gap: 10px;
+  margin: 20px 0 18px;
+}
+
+.auth-form {
+  display: grid;
+  gap: 14px;
+}
+
+.auth-form input {
+  width: 100%;
+  min-height: 54px;
+  padding: 14px 16px;
+  border: 1px solid rgba(32, 23, 17, 0.12);
+  border-radius: 16px;
+  background: rgba(255, 252, 245, 0.95);
+  color: var(--ink);
+}
+
+.auth-message {
+  min-height: 24px;
+  margin-top: 14px;
+  color: var(--forest);
+}
+
 .is-hidden {
   display: none !important;
 }

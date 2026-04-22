@@ -12,6 +12,37 @@ if (!is_dir(MH_DATA_DIR)) {
 
 $config = require __DIR__ . '/../config.php';
 
+function db(): PDO
+{
+    global $config;
+    static $pdo = null;
+
+    if ($pdo instanceof PDO) {
+        return $pdo;
+    }
+
+    if (
+        empty($config['db_host']) ||
+        empty($config['db_name']) ||
+        empty($config['db_user'])
+    ) {
+        throw new RuntimeException('Database config is incomplete.');
+    }
+
+    $dsn = sprintf(
+        'mysql:host=%s;dbname=%s;charset=utf8mb4',
+        $config['db_host'],
+        $config['db_name']
+    );
+
+    $pdo = new PDO($dsn, $config['db_user'], $config['db_pass'] ?? '', [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ]);
+
+    return $pdo;
+}
+
 function jsonResponse(array $payload, int $statusCode = 200): void
 {
     http_response_code($statusCode);
@@ -79,6 +110,38 @@ function requireAdmin(): void
 function isAdmin(): bool
 {
     return !empty($_SESSION['mh_admin']);
+}
+
+function customerId(): ?int
+{
+    return isset($_SESSION['mh_customer_id']) ? (int) $_SESSION['mh_customer_id'] : null;
+}
+
+function requireCustomer(): int
+{
+    $customerId = customerId();
+    if (!$customerId) {
+        jsonResponse(['message' => 'Customer login required'], 401);
+    }
+
+    return $customerId;
+}
+
+function currentCustomer(): ?array
+{
+    $customerId = customerId();
+    if (!$customerId) {
+        return null;
+    }
+
+    try {
+        $statement = db()->prepare('SELECT id, name, email, phone, created_at FROM customers WHERE id = ? LIMIT 1');
+        $statement->execute([$customerId]);
+        $customer = $statement->fetch();
+        return $customer ?: null;
+    } catch (Throwable $exception) {
+        return null;
+    }
 }
 
 function sortNewestFirst(array $items): array

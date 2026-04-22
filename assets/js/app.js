@@ -4,6 +4,7 @@ const cartKey = "mh_cart";
 const ordersKey = "mh_orders";
 const backendBase = config.backendBase || "";
 const siteGateKey = "mh_site_gate_access";
+let currentCustomer = null;
 
 const currency = new Intl.NumberFormat("en-IN", {
   style: "currency",
@@ -165,8 +166,8 @@ const openCheckout = () => {
     return;
   }
 
-  if (!hasSiteAccess()) {
-    initSiteGate(() => openCheckout());
+  if (!currentCustomer) {
+    ensureCustomerAuth(() => openCheckout());
     return;
   }
 
@@ -229,6 +230,94 @@ const apiFetch = async (path, options = {}) => {
   }
 
   return data;
+};
+
+const loadCustomerSession = async () => {
+  try {
+    const data = await apiFetch("/customer-auth.php");
+    currentCustomer = data.customer || null;
+  } catch {
+    currentCustomer = null;
+  }
+};
+
+const ensureCustomerAuth = (onSuccess) => {
+  if (currentCustomer) {
+    if (typeof onSuccess === "function") onSuccess();
+    return;
+  }
+
+  if (document.querySelector(".auth-modal")) return;
+
+  const modal = document.createElement("div");
+  modal.className = "auth-modal";
+  modal.innerHTML = `
+    <div class="site-gate-backdrop"></div>
+    <section class="auth-modal-card" role="dialog" aria-modal="true" aria-labelledby="auth-title">
+      <span class="eyebrow">Customer account</span>
+      <h2 id="auth-title">Login before checkout</h2>
+      <p>Create your My Hillside account to continue and access your past orders later.</p>
+      <div class="auth-tabs">
+        <button class="filter-button is-active" type="button" data-auth-tab="login">Login</button>
+        <button class="filter-button" type="button" data-auth-tab="signup">Sign up</button>
+      </div>
+      <form class="auth-form" data-auth-form="login">
+        <input type="email" name="email" placeholder="Email address" required>
+        <input type="password" name="password" placeholder="Password" required>
+        <button class="button button-primary button-block" type="submit">Login and continue</button>
+      </form>
+      <form class="auth-form is-hidden" data-auth-form="signup">
+        <input type="text" name="name" placeholder="Full name" required>
+        <input type="email" name="email" placeholder="Email address" required>
+        <input type="tel" name="phone" placeholder="Phone number">
+        <input type="password" name="password" placeholder="Create password" required>
+        <button class="button button-primary button-block" type="submit">Create account and continue</button>
+      </form>
+      <p class="auth-message" data-auth-message></p>
+    </section>
+  `;
+
+  document.body.appendChild(modal);
+  document.body.style.overflow = "hidden";
+
+  const closeModal = () => {
+    modal.remove();
+    document.body.style.overflow = "";
+  };
+
+  modal.querySelectorAll("[data-auth-tab]").forEach((button) => {
+    button.addEventListener("click", () => {
+      modal.querySelectorAll("[data-auth-tab]").forEach((tab) => tab.classList.remove("is-active"));
+      modal.querySelectorAll("[data-auth-form]").forEach((form) => form.classList.add("is-hidden"));
+      button.classList.add("is-active");
+      modal.querySelector(`[data-auth-form="${button.dataset.authTab}"]`)?.classList.remove("is-hidden");
+    });
+  });
+
+  modal.querySelectorAll("[data-auth-form]").forEach((form) => {
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const target = event.currentTarget;
+      const payload = Object.fromEntries(new FormData(target).entries());
+      const action = target.dataset.authForm;
+      const message = modal.querySelector("[data-auth-message]");
+
+      if (message) message.textContent = "Please wait...";
+
+      try {
+        const response = await apiFetch("/customer-auth.php", {
+          method: "POST",
+          body: JSON.stringify({ action, ...payload })
+        });
+        currentCustomer = response.customer || null;
+        localStorage.setItem(siteGateKey, "customer-authenticated");
+        closeModal();
+        if (typeof onSuccess === "function") onSuccess();
+      } catch (error) {
+        if (message) message.textContent = error.message || "Something went wrong.";
+      }
+    });
+  });
 };
 
 const submitCheckout = async (event) => {
@@ -497,7 +586,75 @@ const initSiteGate = (onComplete) => {
   });
 };
 
-document.addEventListener("DOMContentLoaded", () => {
+const hydrateCheckoutFromCustomer = () => {
+  if (!currentCustomer) return;
+
+  const form = document.querySelector("[data-checkout-form]");
+  if (!form) return;
+
+  const nameInput = form.querySelector('[name="name"]');
+  const emailInput = form.querySelector('[name="email"]');
+  const phoneInput = form.querySelector('[name="phone"]');
+
+  if (nameInput && !nameInput.value) nameInput.value = currentCustomer.name || "";
+  if (emailInput && !emailInput.value) emailInput.value = currentCustomer.email || "";
+  if (phoneInput && !phoneInput.value) phoneInput.value = currentCustomer.phone || "";
+};
+
+const loadAccountPage = async () => {
+  if (document.body.dataset.page !== "account") return;
+
+  const summary = document.querySelector("[data-account-summary]");
+  const list = document.querySelector("[data-account-orders]");
+
+  if (!currentCustomer) {
+    if (summary) {
+      summary.innerHTML = `
+        <span class="eyebrow">Customer</span>
+        <h2>Please log in first</h2>
+        <p>Log in during checkout to unlock your account history.</p>
+      `;
+    }
+    if (list) list.innerHTML = "<div class=\"form-card\"><p>No active customer session found.</p></div>";
+    return;
+  }
+
+  if (summary) {
+    summary.innerHTML = `
+      <span class="eyebrow">Customer</span>
+      <h2>${currentCustomer.name || "My Hillside customer"}</h2>
+      <p>${currentCustomer.email || ""}</p>
+      <p>${currentCustomer.phone || ""}</p>
+    `;
+  }
+
+  try {
+    const data = await apiFetch("/orders.php?mine=1");
+    const orders = data.orders || [];
+
+    if (!list) return;
+
+    if (!orders.length) {
+      list.innerHTML = "<div class=\"form-card\"><p>No past orders yet.</p></div>";
+      return;
+    }
+
+    list.innerHTML = orders.map((order) => `
+      <article class="form-card">
+        <span class="eyebrow">${order.id}</span>
+        <h3>${order.status}</h3>
+        <p>Total: ₹${Math.round(order.total || 0)}</p>
+        <p>Payment: ${(order.paymentMethod || "").toUpperCase()} | ${order.paymentStatus || ""}</p>
+        <p>Placed: ${new Date(order.createdAt).toLocaleString()}</p>
+      </article>
+    `).join("");
+  } catch {
+    if (list) list.innerHTML = "<div class=\"form-card\"><p>We could not load your order history yet.</p></div>";
+  }
+};
+
+document.addEventListener("DOMContentLoaded", async () => {
+  await loadCustomerSession();
   renderProductGrids();
   renderCart();
   bindCartActions();
@@ -508,4 +665,6 @@ document.addEventListener("DOMContentLoaded", () => {
   bindMobileNav();
   initWhatsApp();
   initReveal();
+  hydrateCheckoutFromCustomer();
+  loadAccountPage();
 });
