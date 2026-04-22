@@ -164,9 +164,15 @@ const openCheckout = () => {
     return;
   }
 
+  if (!hasSiteAccess()) {
+    initSiteGate(() => openCheckout());
+    return;
+  }
+
   resetCheckoutState();
   setOpenState(checkoutModal(), true);
 };
+
 const closeCheckout = () => {
   resetCheckoutState();
   setOpenState(checkoutModal(), false);
